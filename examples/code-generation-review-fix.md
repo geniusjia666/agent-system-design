@@ -1,10 +1,10 @@
 # Illustrative design: generate, review, and fix a word-count function
 
-[中文示例](../zh-CN/code-generation-review-fix.md) · [Sample prompts](sample-prompts.md)
+[Chinese full edition of this methodology](https://github.com/geniusjia666/agent-system-design-cn) · [Sample prompts](sample-prompts.md)
 
-**This document is illustrative.** It fills the English [design-document template](../../skills/agent-system-design/assets/design-document-template.md) for one concrete request so readers can see the contracts, gates, and architecture choice together. It was not given to a model, the candidate function was not executed, and no review score was assigned. Blank score cells are intentional. Do not quote this file as measured quality, latency, or cost.
+**This document is illustrative.** It fills the English [design-document template](../skills/agent-system-design/assets/design-document-template.md) for one concrete request so readers can see the contracts, gates, and architecture choice together. It was not given to a model, the candidate function was not executed, and no review score was assigned. Blank score cells are intentional. Do not quote this file as measured quality, latency, or cost.
 
-The request matches the word-count scenario already used in the skill's [handoff template](../../skills/agent-system-design/assets/handoff-contract-template.json) and framework chapter. Those chapters remain the contract definition. The JSON below is one filled instance, not a replacement schema.
+The request matches the word-count scenario already used in the skill's [handoff template](../skills/agent-system-design/assets/handoff-contract-template.json) and framework chapter. Those chapters remain the contract definition. The JSON below is one filled instance, not a replacement schema.
 
 ## 0. Summary
 
@@ -135,7 +135,7 @@ Integration or combination approach: one local host function. No MCP server and 
 
 ## 7. Collaboration and Handoffs
 
-The instances below use the seven `dispatch` elements and the `handoff` / `gate` objects defined in the [handoff template](../../skills/agent-system-design/assets/handoff-contract-template.json). `writable` names the host state the role is allowed to propose. The model still has no write tool. The host writes state only after the gate accepts the return.
+The instances below use the seven `dispatch` elements and the `handoff` / `gate` objects defined in the [handoff template](../skills/agent-system-design/assets/handoff-contract-template.json). `writable` names the host state the role is allowed to propose. The model still has no write tool. The host writes state only after the gate accepts the return.
 
 ### 7.1 Handoff Table
 
@@ -422,13 +422,13 @@ These assumptions do not authorize a model call, a file write, or execution of t
 ## 12. Framework Implementation (Optional)
 
 - Selected frameworks: none. The host is a fixed sequence of dispatches and gates. A framework is not required to express that.
-- The skill's framework chapter maps this same generate, review, and repair shape onto ADK, LangGraph, CrewAI, and AutoGen as construction scaffolds. That chapter says the libraries were not installed there. This example does not select or test them. See the [framework chapter](../../skills/agent-system-design/references/09-framework-implementation-mapping.md) and the repository README for the maintenance notes recorded in the skill.
+- The skill's framework chapter maps this same generate, review, and repair shape onto ADK, LangGraph, CrewAI, and AutoGen as construction scaffolds. That chapter says the libraries were not installed there. This example does not select or test them. See the [framework chapter](../skills/agent-system-design/references/09-framework-implementation-mapping.md) and the repository README for the maintenance notes recorded in the skill.
 - If someone maps the contract later, the field names in Section 7 stay the contract, the gate stays in the host, and a framework's step counter is not the 4-call budget.
 - Evidence scope: documentation only.
 
 ## 13. Self-Review Results
 
-Illustrative walkthrough of the [self-review checklist](../../skills/agent-system-design/assets/design-self-review-checklist.md). Scores are omitted. A blank is not a zero and not a five.
+Illustrative walkthrough of the [self-review checklist](../skills/agent-system-design/assets/design-self-review-checklist.md). Scores are omitted. A blank is not a zero and not a five.
 
 ### Basic Information
 

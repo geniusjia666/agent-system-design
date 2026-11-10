@@ -1,6 +1,6 @@
 # Sample prompts
 
-[中文提示词](../zh-CN/sample-prompts.md) · [Illustrative design](code-generation-review-fix.md)
+[Chinese full edition of this methodology](https://github.com/geniusjia666/agent-system-design-cn) · [Illustrative design](code-generation-review-fix.md)
 
 These prompts assume the English skill `agent-system-design` is installed. They show the kind of request the skill is written to accept. They are not magic phrases, and they do not produce a measured score.
 

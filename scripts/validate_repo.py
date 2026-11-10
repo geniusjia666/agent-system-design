@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
-"""Check this repository without installing packages or running skill scaffolds.
+"""Check the English edition without installing packages or running skill scaffolds.
 
-The skill archives contain illustrative code blocks. This script does not
-execute them. It checks text encoding, JSON, SKILL.md frontmatter, local
-Markdown references, and byte-for-byte preservation of the imported skill files.
+The skill text contains illustrative code blocks. This script does not execute
+them, and it does not claim a runtime or platform test. It checks UTF-8, JSON,
+SKILL.md frontmatter, local Markdown references, English methodology markers,
+the shared version note, and byte-for-byte preservation of the imported English
+skill. It does not require the Chinese edition, which lives in another repository.
 """
 
 from __future__ import annotations
@@ -201,44 +203,58 @@ def check_markdown(path: Path, text: str, texts: dict[Path, str], report: Report
                 report.error(f"{rel}: missing path mention `{raw}`")
 
 
+SIBLING_REPO = "https://github.com/geniusjia666/agent-system-design-cn"
+METHODOLOGY_VERSION = "0.1.0"
+
+
+def check_edition(texts: dict[Path, str], report: Report) -> None:
+    """English edition only. Do not require files that live in the Chinese repo."""
+    if (ROOT / "skills" / "agent-system-design-cn").exists():
+        report.error("skills/agent-system-design-cn is not part of the English edition")
+    if (ROOT / "examples" / "zh-CN").exists() or (ROOT / "README.zh-CN.md").exists():
+        report.error("Chinese edition documents are not part of this repository")
+    version_text = texts.get(ROOT / "VERSION", "")
+    first = next((line.strip() for line in version_text.splitlines() if line.strip()), "")
+    if first != METHODOLOGY_VERSION:
+        report.error(f"VERSION must be {METHODOLOGY_VERSION}, found {first!r}")
+    else:
+        report.add("methodology_version")
+    sync = texts.get(ROOT / "SYNC.md", "")
+    if not sync:
+        report.error("missing SYNC.md")
+    else:
+        for needle in (
+            SIBLING_REPO,
+            METHODOLOGY_VERSION,
+            "same methodology",
+            "no automated sync",
+        ):
+            if needle not in sync:
+                report.error(f"SYNC.md is missing {needle!r}")
+        report.add("sync_notes")
+    readme = texts.get(ROOT / "README.md", "")
+    if SIBLING_REPO not in readme or METHODOLOGY_VERSION not in readme:
+        report.error("README must link the Chinese sibling and state version 0.1.0")
+
+
 def check_methodology_markers(texts: dict[Path, str], report: Report) -> None:
     english = texts.get(ROOT / "skills/agent-system-design/SKILL.md", "")
-    chinese = texts.get(ROOT / "skills/agent-system-design-cn/SKILL.md", "")
-    for label, text, needles in (
-        (
-            "English SKILL.md",
-            english,
-            (
-                "Prompt, Workflow, Single Agent, or Multi-Agent",
-                "1 Requirements Clarification",
-                "7 Delivery and Self-Review",
-                "21 review dimensions",
-                "21 Agentic design patterns",
-            ),
-        ),
-        (
-            "Chinese SKILL.md",
-            chinese,
-            (
-                "提示词、工作流、单 Agent、多 Agent",
-                "1 需求澄清",
-                "7 交付与自检",
-                "21 个维度",
-                "21 种 Agentic 设计模式",
-            ),
-        ),
-    ):
-        if not text:
-            report.error(f"missing {label}")
-            continue
+    needles = (
+        "Prompt, Workflow, Single Agent, or Multi-Agent",
+        "1 Requirements Clarification",
+        "7 Delivery and Self-Review",
+        "21 review dimensions",
+        "21 Agentic design patterns",
+    )
+    if not english:
+        report.error("missing English SKILL.md")
+    else:
         for needle in needles:
-            if needle not in text:
-                report.error(f"{label} is missing {needle!r}")
+            if needle not in english:
+                report.error(f"English SKILL.md is missing {needle!r}")
 
     en_patterns = ROOT / "skills/agent-system-design/references/10-design-pattern-index.md"
-    cn_patterns = ROOT / "skills/agent-system-design-cn/references/10-设计模式索引.md"
     en_review = ROOT / "skills/agent-system-design/assets/design-self-review-checklist.md"
-    cn_review = ROOT / "skills/agent-system-design-cn/assets/设计自检清单.md"
     expect_rows = {str(number) for number in range(1, 22)}
 
     def table_ids(text: str) -> set[str]:
@@ -249,9 +265,7 @@ def check_methodology_markers(texts: dict[Path, str], report: Report) -> None:
 
     checks = (
         (en_patterns, table_ids, None, "English pattern rows"),
-        (cn_patterns, table_ids, None, "Chinese pattern rows"),
         (en_review, None, r"^### Dimension ([0-9]+):", "English review dimensions"),
-        (cn_review, None, r"^### 维度 ([0-9]+)：", "Chinese review dimensions"),
     )
     for path, table_fn, heading_pattern, label in checks:
         text = texts.get(path, "")
@@ -265,7 +279,6 @@ def check_methodology_markers(texts: dict[Path, str], report: Report) -> None:
 
     for path in (
         ROOT / "skills/agent-system-design/assets/handoff-contract-template.json",
-        ROOT / "skills/agent-system-design-cn/assets/交接契约模板.json",
     ):
         text = texts.get(path, "")
         try:
@@ -326,8 +339,8 @@ def check_manifest(file_bytes: dict[Path, bytes], report: Report) -> None:
     extra = sorted(set(skill_files) - seen)
     for path in extra:
         report.error(f"unexpected file under skills/: {path.relative_to(ROOT)}")
-    if len(entries) != 28:
-        report.error(f"expected 28 imported skill files, manifest has {len(entries)}")
+    if len(entries) != 14:
+        report.error(f"expected 14 imported English skill files, manifest has {len(entries)}")
 
 
 def main() -> int:
@@ -357,6 +370,7 @@ def main() -> int:
     for path, text in texts.items():
         if path.suffix == ".md":
             check_markdown(path, text, texts, report)
+    check_edition(texts, report)
     check_methodology_markers(texts, report)
     check_manifest(file_bytes, report)
 
