@@ -67,26 +67,15 @@ agent-system-design/
 
 ## Install
 
-Installation here means putting the skill directory where your agent host already looks for skills. This repository does not register itself with a product, and cloning it does not by itself enable a skill.
+There is no one-line install that works for every host. Cloning this repository does not enable the skill. Copy the skill directory into a location that your host documents, and keep the last folder name as `agent-system-design` so it matches `name` in [SKILL.md](skills/agent-system-design/SKILL.md).
 
-These steps follow the [Agent Skills specification](https://agentskills.io/specification) as published on agentskills.io and read for this repository on 2026-11-10:
+The [Agent Skills specification](https://agentskills.io/specification), read on 2026-11-10, defines the folder and the frontmatter. It does not define one install path for every product.
 
-1. Keep the directory name equal to the `name` field in `SKILL.md`. This edition is [skills/agent-system-design](skills/agent-system-design/SKILL.md) (`name: agent-system-design`).
-2. Copy or symlink that directory into the skills location your host documents. The specification defines the folder and the frontmatter. It does not define one install path for every product.
-3. Ask for a design, an architecture choice, or a review of an existing design. [Sample prompts](examples/sample-prompts.md) are starting points, not required phrasing.
+For the same method in Chinese, use [agent-system-design-cn](https://github.com/geniusjia666/agent-system-design-cn). This repository does not contain that edition.
 
-For the same method in Chinese, install the skill from [agent-system-design-cn](https://github.com/geniusjia666/agent-system-design-cn) instead of this repository. Do not expect a Chinese skill directory here.
+### Cursor
 
-```bash
-# Replace DESTINATION with the directory your host actually scans.
-# The last path component must stay the skill name.
-mkdir -p DESTINATION
-cp -R skills/agent-system-design DESTINATION/agent-system-design
-```
-
-### Cursor, as documented, not as tested here
-
-Cursor's Agent Skills page, <https://cursor.com/docs/skills>, was read on 2026-11-10. It lists these discovery directories:
+[Cursor's Agent Skills page](https://cursor.com/docs/skills), read on 2026-11-10, lists these discovery directories:
 
 | Location | Scope, as that page describes it |
 |---|---|
@@ -95,9 +84,23 @@ Cursor's Agent Skills page, <https://cursor.com/docs/skills>, was read on 2026-1
 | `~/.agents/skills/` | User, on that machine |
 | `~/.cursor/skills/` | User, on that machine |
 
-The same page says Cursor also loads `.claude/skills/`, `.codex/skills/`, `~/.claude/skills/`, and `~/.codex/skills/` for compatibility, and that a GitHub repository is not imported as skills on its own unless it is packaged as a plugin. Copying the skill folder is the direct method described above.
+From a clone of this repository, either project path is:
 
-This publishing pass did not launch Cursor, Claude Code, or Codex, and did not install the skill into any of those directories. Nothing here is a certification, a runtime test, or a compatibility claim for those products. Treat the table as a citation of Cursor's documentation, then confirm it against the current page before you rely on it.
+```bash
+mkdir -p .cursor/skills
+cp -R skills/agent-system-design .cursor/skills/agent-system-design
+
+mkdir -p .agents/skills
+cp -R skills/agent-system-design .agents/skills/agent-system-design
+```
+
+Use one of them. The folder that contains `SKILL.md` must stay named `agent-system-design`. The same page says a GitHub repository is not imported as skills on its own unless it is packaged as a plugin, and that Cursor also reads `.claude/skills/`, `.codex/skills/`, `~/.claude/skills/`, and `~/.codex/skills/` for compatibility. This repository did not install or run Claude Code or Codex, and those paths are not install instructions for those products.
+
+A layout copy into `.cursor/skills/agent-system-design` and `.agents/skills/agent-system-design` was checked on 2026-11-10. Cursor's discovery of that copy, and an actual agent trigger, were not verified: the Cursor CLI was not logged in. Details, the commands, and the three result labels are in [docs/host-check.md](docs/host-check.md). That check is not a certification.
+
+### Other hosts
+
+No other host's install steps are listed here. Add one only after reading that host's own current documentation, and mark it untested until you have run it.
 
 ## Use
 
@@ -131,7 +134,9 @@ From a clone:
 python3 scripts/validate_repo.py
 ```
 
-The script uses the Python standard library only. It checks UTF-8, JSON parsing, `SKILL.md` frontmatter, local Markdown links and heading anchors, the 7-step / 4-tier / 21-pattern / 21-dimension / handoff markers, methodology version 0.1.0, and SHA-256 equality with the imported English skill files. It does not execute code samples inside the skill, and it does not require files from the Chinese edition.
+The script uses the Python standard library only. It checks UTF-8, JSON parsing, `SKILL.md` frontmatter, local Markdown links and heading anchors, the 7-step / 4-tier / 21-pattern / 21-dimension / handoff markers, methodology version 0.1.0, and SHA-256 equality with the imported English skill files. It does not execute code samples inside the skill, and it does not require files from the Chinese edition. Passing it does not mean a host discovered or ran the skill. That separate record is [docs/host-check.md](docs/host-check.md).
+
+The design in [examples/code-generation-review-fix.md](examples/code-generation-review-fix.md) is a handwritten illustration. It is not the output of a host run. A short draft announcement that was not posted is [docs/launch-note.md](docs/launch-note.md).
 
 ## Contributing
 
