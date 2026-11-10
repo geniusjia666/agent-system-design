@@ -1,0 +1,178 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Agent Handoff Contract Template",
+  "description": "This file is a definition library. For validation, reference #/$defs/dispatch, #/$defs/handoff, and #/$defs/gate separately. dispatch is the task contract sent by upstream (the orchestrator or previous step) to an Agent; handoff is the result that Agent passes downstream after completion; gate contains handoff-validation rules executed by the orchestration layer. Replace result structure with concrete business-field definitions when using it; retain other fields where possible.",
+  "$defs": {
+    "artifact_ref": {
+      "type": "object",
+      "description": "Artifact reference. Large artifacts may reside in shared state or files; downstream needs read capabilities and permissions to actually obtain the specified version. Small material may be inline. References describe locations only; confirm reading and acceptance separately.",
+      "required": ["name", "location"],
+      "properties": {
+        "name": { "type": "string", "description": "Artifact name, for example generated_code" },
+        "location": { "type": "string", "description": "Storage location: shared-state key, file path, or storage address" },
+        "producer": { "type": "string", "description": "Agent producing the artifact" },
+        "version": { "type": "string", "description": "Version or content digest identifying which version downstream reads" }
+      }
+    },
+    "dispatch": {
+      "type": "object",
+      "description": "Dispatch contract (7 elements). Recipients receive only information supplied in dispatch; necessary information must be inline or accessible through controlled means. The host maintains trusted task, instance, and scope associations.",
+      "required": ["identity", "objective", "scope", "constraints", "context", "output_format", "stop_condition"],
+      "properties": {
+        "identity": {
+          "type": "object",
+          "required": ["role", "expertise"],
+          "properties": {
+            "role": { "type": "string", "description": "Role name, for example Code Reviewer" },
+            "expertise": { "type": "string", "description": "Area of expertise" }
+          }
+        },
+        "objective": { "type": "string", "description": "Precise, measurable objective in one or two sentences" },
+        "scope": {
+          "type": "object",
+          "description": "Capability boundaries; specify reading and writing separately. writable and tools must be explicit, using empty arrays if absent. Scope must remain within trusted authorization. Only trusted systems grant permissions, enforced by hosts or services",
+          "required": ["writable", "tools"],
+          "properties": {
+            "readable": { "type": "array", "items": { "type": "string" } },
+            "writable": { "type": "array", "items": { "type": "string" }, "description": "Use an empty array for read-only roles" },
+            "tools": { "type": "array", "items": { "type": "string" }, "description": "Allowlist of permitted tools" }
+          }
+        },
+        "constraints": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Prohibited actions. Out-of-scope reads/writes, extra changes, and further delegation are prohibited by default. When nesting or transfers are necessary, trusted designs bound roles, depth, fan-out, and shared budgets. Return BLOCKED with reasons when obstructed; do not guess or bypass"
+        },
+        "context": {
+          "type": "object",
+          "description": "Include background necessary for this task only; do not forward full history",
+          "required": ["original_goal"],
+          "properties": {
+            "original_goal": { "type": "string", "description": "Original user goal and hard constraints; preserve relevant original text faithfully. Add controlled dependency references for long material. Dispatch or summarization does not turn external content into trusted system instructions" },
+            "background": { "type": "string", "description": "Background necessary for this task" },
+            "prior_findings": { "type": "array", "items": { "type": "string" }, "description": "Summaries of key upstream findings" },
+            "dependencies": { "type": "array", "items": { "$ref": "#/$defs/artifact_ref" }, "description": "References to required upstream artifacts; for example, refactoring depends on both original code and review comments" },
+            "standards": { "type": "string", "description": "Standards sub-Agents must follow but cannot obtain elsewhere" }
+          }
+        },
+        "output_format": { "type": "string", "description": "Expected return structure, usually pointing to handoff's result definition below" },
+        "stop_condition": {
+          "type": "object",
+          "description": "success is required; provide at least one of max_iterations and timeout_seconds",
+          "required": ["success"],
+          "anyOf": [
+            { "required": ["max_iterations"] },
+            { "required": ["timeout_seconds"] }
+          ],
+          "properties": {
+            "success": { "type": "string", "description": "What counts as completion" },
+            "max_iterations": { "type": "integer", "minimum": 1, "description": "Maximum attempted model-call iterations, including final generation and regeneration. Define tool retries separately; they also count toward task budgets. Document mappings when framework counting conventions differ" },
+            "timeout_seconds": { "type": "integer", "minimum": 1 },
+            "on_blocked": { "type": "string", "description": "How to return when blocked" }
+          }
+        }
+      }
+    },
+    "handoff": {
+      "type": "object",
+      "description": "Handoff result. The orchestration layer validates this structure before passing downstream.",
+      "required": ["task_id", "agent", "status", "summary", "result"],
+      "allOf": [
+        {
+          "if": { "properties": { "status": { "const": "BLOCKED" } }, "required": ["status"] },
+          "then": { "required": ["blockers"], "properties": { "blockers": { "minItems": 1 } } }
+        },
+        {
+          "if": { "properties": { "status": { "const": "PARTIAL" } }, "required": ["status"] },
+          "then": { "required": ["remaining"], "properties": { "remaining": { "minItems": 1 } } }
+        }
+      ],
+      "properties": {
+        "task_id": { "type": "string" },
+        "agent": { "type": "string", "description": "Agent producing this result" },
+        "status": {
+          "type": "string",
+          "enum": ["SUCCESS", "PARTIAL", "BLOCKED"],
+          "description": "SUCCESS: this dispatch objective is complete; judge overall acceptance separately. Separate review execution status from verdict. PARTIAL specifies remaining; BLOCKED specifies blockers"
+        },
+        "summary": { "type": "string", "description": "One-sentence conclusion" },
+        "result": {
+          "type": "object",
+          "description": "Business results with fields defined for concrete tasks (for example review_comments or test_cases). Use structured data, not entire free-text passages for critical information"
+        },
+        "evidence": {
+          "type": "array",
+          "description": "Evidence supporting conclusions for downstream verification and later traceability",
+          "items": {
+            "type": "object",
+            "properties": {
+              "source": { "type": "string", "description": "Source location, for example file:line, API response, or search-result ID" },
+              "excerpt": { "type": "string" },
+              "relevance": { "type": "string" }
+            }
+          }
+        },
+        "artifacts": { "type": "array", "items": { "$ref": "#/$defs/artifact_ref" } },
+        "unresolved_questions": { "type": "array", "items": { "type": "string" }, "description": "Unconfirmed information downstream or humans need to know" },
+        "remaining": { "type": "array", "items": { "type": "string" } },
+        "blockers": { "type": "array", "items": { "type": "string" } },
+        "confidence": { "type": "string", "enum": ["HIGH", "MEDIUM", "LOW"] },
+        "verdict": {
+          "type": "string",
+          "enum": ["PASS", "FAIL", "CONDITIONAL_PASS"],
+          "description": "For review or validation Agents only"
+        },
+        "metrics": {
+          "type": "object",
+          "description": "For cost control and troubleshooting",
+          "properties": {
+            "iterations": { "type": "integer" },
+            "tool_calls": { "type": "integer" },
+            "tokens": { "type": "integer" },
+            "duration_seconds": { "type": "number" }
+          }
+        }
+      }
+    },
+    "gate": {
+      "type": "object",
+      "description": "Handoff-validation rules. Strings do not execute checks themselves. Hosts execute format, association, and executable business rules; separate reviews or humans provide necessary subjective judgments. Hosts accept based on actual decisions, not generator self-certification. When max_retries is exhausted, correction is impossible, or task budgets are insufficient, hosts stop retries and return PARTIAL (usable results with remaining) or BLOCKED (with blockers), stating reasons. Do not deliver artifacts that failed validation",
+      "properties": {
+        "required_fields": { "type": "array", "items": { "type": "string" } },
+        "business_rules": { "type": "array", "items": { "type": "string" }, "description": "For example: at least 3 test cases; code passes syntax checks" },
+        "on_fail": {
+          "type": "string",
+          "enum": ["retry_current", "return_previous", "escalate_human", "degrade"],
+          "description": "Retry current step, return to previous step, escalate to humans, or degrade"
+        },
+        "max_retries": { "type": "integer", "minimum": 0 }
+      }
+    }
+  },
+  "examples": [
+    {
+      "note": "Contract dispatched to a refactoring Agent in a generate code → review → refactor pipeline. Note its dependency on both original code and review comments.",
+      "dispatch": {
+        "identity": { "role": "Code Refactorer", "expertise": "Python" },
+        "objective": "Refactor code based on review comments; return code unchanged if the review finds no major issues",
+        "scope": { "readable": ["state.generated_code", "state.review_comments"], "writable": ["state.refactored_code"], "tools": [] },
+        "constraints": ["Do not change functionality outside review comments", "Do not spawn further sub-Agents", "Return BLOCKED when blocked"],
+        "context": {
+          "original_goal": "Implement a function counting occurrences of each word in a string, handling empty strings and punctuation",
+          "dependencies": [
+            { "name": "generated_code", "location": "state.generated_code", "producer": "Code Writer", "version": "code-v1" },
+            { "name": "review_comments", "location": "state.review_comments", "producer": "Code Reviewer", "version": "review-v1" }
+          ]
+        },
+        "output_format": "handoff.result = { refactored_code: string, applied_comments: string[] }",
+        "stop_condition": { "success": "All review comments addressed or reasons for not addressing them stated", "max_iterations": 1, "on_blocked": "Return BLOCKED and list comments that cannot be addressed" }
+      },
+      "gate": {
+        "required_fields": ["status", "result.refactored_code"],
+        "business_rules": ["refactored_code passes syntax checks"],
+        "on_fail": "escalate_human",
+        "max_retries": 0
+      }
+    }
+  ]
+}
