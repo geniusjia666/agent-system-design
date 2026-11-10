@@ -1,0 +1,74 @@
+{
+  "imported_skill_files": [
+    {
+      "path": "skills/agent-system-design/SKILL.md",
+      "sha256": "606259dbc848df0e8213527cf5a935333be588546882010840e6b29928af8f4c",
+      "bytes": 20311
+    },
+    {
+      "path": "skills/agent-system-design/assets/design-document-template.md",
+      "sha256": "1b6991a586589056811e5eaf245db976f480d27997c288a1ece4c36293003166",
+      "bytes": 11371
+    },
+    {
+      "path": "skills/agent-system-design/assets/design-self-review-checklist.md",
+      "sha256": "705ae5a65e7016093e271a4206d2b239d5e12541e605b82fa7511aa3db3c44a9",
+      "bytes": 45349
+    },
+    {
+      "path": "skills/agent-system-design/assets/handoff-contract-template.json",
+      "sha256": "d058556418df2e551979bdce3ecf5d882ee83e58d404086e91ddc1e7ee06288d",
+      "bytes": 11672
+    },
+    {
+      "path": "skills/agent-system-design/references/01-architecture-selection.md",
+      "sha256": "dca0a39efc11b6bb576a8dcb36773a4466323bb287958a4ff3124953192ba5d7",
+      "bytes": 17242
+    },
+    {
+      "path": "skills/agent-system-design/references/02-individual-agent-design.md",
+      "sha256": "26f5d624e114bec30a7d4c9cfaa804c0bc6dc0cd870176f416fb33958919eff9",
+      "bytes": 20631
+    },
+    {
+      "path": "skills/agent-system-design/references/03-tool-design.md",
+      "sha256": "4c0a19283b20804a1b56f7363bb02e80a3bed2910a0100efd2cc4e9f06ea63a4",
+      "bytes": 25272
+    },
+    {
+      "path": "skills/agent-system-design/references/04-context-and-memory.md",
+      "sha256": "60a3d141534c771d68794cd6ff987e8df082c0524755b78f813504e50fca80d0",
+      "bytes": 28402
+    },
+    {
+      "path": "skills/agent-system-design/references/05-orchestration-patterns.md",
+      "sha256": "448c56575cf5f3b7befee666e5d181c7c63d47f6d9bfac88ff10ecf76f574d22",
+      "bytes": 24877
+    },
+    {
+      "path": "skills/agent-system-design/references/06-multi-agent-collaboration.md",
+      "sha256": "23551814b9b3714e4112040a0eda8031ba4083ddc2b0553fb84c0a66022aaecb",
+      "bytes": 28613
+    },
+    {
+      "path": "skills/agent-system-design/references/07-human-intervention-reliability-and-security.md",
+      "sha256": "6b08ca08bcc949bcd1b2b8c574d801eff0db927dd2da3dd5e122f86fa4186ab8",
+      "bytes": 29780
+    },
+    {
+      "path": "skills/agent-system-design/references/08-evaluation-and-iteration.md",
+      "sha256": "ba72c6845b668d74a9cc0f2ec2a3bf7fb554687e689df2c16b70485a8aea1ded",
+      "bytes": 38370
+    },
+    {
+      "path": "skills/agent-system-design/references/09-framework-implementation-mapping.md",
+      "sha256": "b68dea78663ea4d44dfa8fb9fc93a857d1456e829ff0f3acce6284f7c2f2960c",
+      "bytes": 31181
+    },
+    {
+      "path": "skills/agent-system-design/references/10-design-pattern-index.md",
+      "sha256": "a4f71a72e0bf86382f6fa51b30ba12bb34b91708906c27648cafc2e7d08471aa",
+      "bytes": 37746
+    }
+  ]
+}
